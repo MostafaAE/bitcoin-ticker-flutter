@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'coin_data.dart';
+import 'crypto_card.dart';
 import 'dart:io' show Platform;
 class PriceScreen extends StatefulWidget {
   @override
@@ -10,8 +11,9 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
 
-  String selectedCurrency = 'AUD';
-  int exRate;
+  String selectedCurrency = currenciesList.first;
+  Map<String, String> cryptoPrices = new Map();
+  bool isWaiting = false;
 
   DropdownButton<String> androidDropDown()
   {
@@ -31,7 +33,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (value) {
        setState(() {
         selectedCurrency = value;
-        getData('BTC', selectedCurrency);
+        getData();
         });
       },
     );
@@ -47,19 +49,21 @@ class _PriceScreenState extends State<PriceScreen> {
       backgroundColor: Colors.lightBlue,
       onSelectedItemChanged: (selectedIndex){
         selectedCurrency = currenciesList[selectedIndex];
-        getData('BTC', selectedCurrency);
+        getData();
       },
       itemExtent: 32,
       children: pickerItems,
     );
   }
 
-  void getData(String base, String quote) async
+  void getData() async
   {
     try {
-      var coinExRate = await CoinData().getCoinData(base, quote);
+      isWaiting = true;
+      Map<String, String> data = await CoinData().getCoinData(selectedCurrency);
+      isWaiting = false;
       setState(() {
-        exRate = coinExRate['rate'].toInt();
+        cryptoPrices = data;
       });
     }
     catch (e) {
@@ -67,10 +71,28 @@ class _PriceScreenState extends State<PriceScreen> {
     }
   }
 
+  Column getCryptoCards()
+  {
+    List<CryptoCard> cryptoCards = [];
+    for(String crypto in cryptoList)
+    {
+      cryptoCards.add(CryptoCard(
+        cryptoCurrency: crypto,
+        exchangeRate: isWaiting ? '?' : cryptoPrices[crypto],
+        selectedCurrency: selectedCurrency,
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: cryptoCards,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    getData('BTC', selectedCurrency);
+    getData();
   }
 
   @override
@@ -83,27 +105,7 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $exRate $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          getCryptoCards(),
           Container(
             height: 150.0,
             alignment: Alignment.center,
