@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'coin_data.dart';
 import 'crypto_card.dart';
 import 'dart:io' show Platform;
+import 'constants.dart';
+
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
@@ -28,6 +30,14 @@ class _PriceScreenState extends State<PriceScreen> {
     }
 
     return DropdownButton<String>(
+      dropdownColor: dropDownColor,
+      icon: Icon(Icons.keyboard_arrow_up),
+      style: TextStyle(fontSize: 18.0),
+      iconSize: 32,
+      underline: Container(
+        height: 2,
+        color: Colors.white,
+      ),
       value: selectedCurrency,
       items: dropdownItems,
       onChanged: (value) {
@@ -43,13 +53,15 @@ class _PriceScreenState extends State<PriceScreen> {
   {
     List<Text> pickerItems = [];
     for(String currency in currenciesList)
-      pickerItems.add(Text(currency));
+      pickerItems.add(Text(currency,style: TextStyle(color: Colors.white,),),);
 
     return CupertinoPicker(
-      backgroundColor: Colors.lightBlue,
+      backgroundColor: primaryColor,
       onSelectedItemChanged: (selectedIndex){
+        setState(() {
         selectedCurrency = currenciesList[selectedIndex];
         getData();
+        });
       },
       itemExtent: 32,
       children: pickerItems,
@@ -99,7 +111,7 @@ class _PriceScreenState extends State<PriceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('🤑 Coin Ticker'),
+        title: Text('Crypto Ticker'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,8 +121,8 @@ class _PriceScreenState extends State<PriceScreen> {
           Container(
             height: 150.0,
             alignment: Alignment.center,
-            padding: EdgeInsets.only(bottom: 30.0),
-            color: Colors.lightBlue,
+            padding: EdgeInsets.only(bottom: 15.0, top: 15),
+            color: primaryColor,
             child: Platform.isIOS ? iOSPicker() : androidDropDown(),
           ),
         ],
