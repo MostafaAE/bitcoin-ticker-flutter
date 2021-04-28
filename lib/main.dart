@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'constants.dart';
 import 'price_screen.dart';
 
@@ -9,8 +10,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-          primaryColor: DarkPrimaryColor,
-          scaffoldBackgroundColor: LightPrimaryColor,
+        primaryColor: kDarkPrimaryColor,
+        scaffoldBackgroundColor: kLightPrimaryColor,
       ),
       home: PriceScreen(),
     );
